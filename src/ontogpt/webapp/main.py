@@ -5,7 +5,7 @@ from typing import Dict
 import uvicorn
 from fastapi import FastAPI, Form, Request
 from pydantic import BaseModel
-from starlette.staticfiles import StaticFiles
+# from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
 from ontogpt.engines.knowledge_engine import DATAMODELS
@@ -13,7 +13,7 @@ from ontogpt.engines.spires_engine import SPIRESEngine
 from ontogpt.io.html_exporter import HTMLExporter
 
 this_path = Path(__file__).parent
-static_dir = this_path / "static"
+# static_dir = this_path / "static"
 html_dir = this_path / "html"
 
 
@@ -24,7 +24,7 @@ class Query(BaseModel):
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+# app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 templates = Jinja2Templates(directory=str(html_dir))
 
 html_exporter = HTMLExporter()
