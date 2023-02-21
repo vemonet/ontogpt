@@ -38,6 +38,9 @@ sphinx-rtd-theme = {version = "^1.0.0", extras = ["docs"]}
 sphinx-autodoc-typehints = {version = "^1.19.4", extras = ["docs"]}
 sphinx-click = {version = "^4.3.0", extras = ["docs"]}
 myst-parser = {version = "^0.18.1", extras = ["docs"]}
+fastapi = "^0.88.0"
+uvicorn = "^0.20.0"
+Jinja2 = "^3.1.2"
 
 [tool.poetry.scripts]
 ontogpt = "ontogpt.cli:main"
@@ -45,16 +48,16 @@ web-ontogpt = "ontogpt.webapp.main:start"
 
 [tool.poetry.extras]
 docs = [
-    "sphinx[docs]",
-    "sphinx-rtd-theme[docs]",
-    "sphinx-autodoc-typehints[docs]",
-    "sphinx-click[docs]",
-    "myst-parser[docs]"
+    "sphinx",
+    "sphinx-rtd-theme",
+    "sphinx-autodoc-typehints",
+    "sphinx-click",
+    "myst-parser"
 ]
 web = [
-    "fastapi >=0.88.0",
-    "uvicorn >=0.20.0",
-    "Jinja2 >=3.1.2",
+    "fastapi",
+    "uvicorn",
+    "Jinja2",
 ]
 
 [tool.poetry-dynamic-versioning]

@@ -195,7 +195,9 @@ Install the `ontogpt` package from pip, then extract using the SPIRES engine and
 
 ```python
 import logging
+import os
 
+from oaklib.utilities.apikey_manager import set_apikey_value
 from ontogpt.engines.spires_engine import SPIRESEngine
 
 logger = logging.getLogger()
@@ -203,6 +205,9 @@ logger.setLevel(level=logging.DEBUG)
 
 template = "treatment.DiseaseTreatmentSummary"
 text = "Clozapine is indicated for the treatment of severely ill patients with schizophrenia who fail to respond adequately to standard antipsychotic treatment"
+
+set_apikey_value("openai", os.getenv(OPENAI_APIKEY))
+set_apikey_value("bioportal", osgetenv(BIOPORTAL_APIKEY))
 
 ke = SPIRESEngine(template)
 results = ke.extract_from_text(text)
