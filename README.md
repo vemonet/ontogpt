@@ -14,7 +14,7 @@ Currently there are two different pipelines implemented:
     - Inputs: LinkML schema + text
     - Outputs: JSON, YAML, or RDF or OWL that conforms to the schema
     - Uses text-davinci-003
-- HALO: HAllucinating Latent Ontologies 
+- HALO: HAllucinating Latent Ontologies
     - Few-shot learning approach to generating/hallucinating a domain ontology given a few examples
     - Uses code-davinci-002
 
@@ -25,11 +25,11 @@ Given a short text `abstract.txt` with content such as:
    > The cGAS/STING-mediated DNA-sensing signaling pathway is crucial
    for interferon (IFN) production and host antiviral
    responses
-   > 
+   >
    > ...
-   > [snip] 
+   > [snip]
    > ...
-   > 
+   >
    > The underlying mechanism was the
    interaction of US3 with β-catenin and its hyperphosphorylation of
    β-catenin at Thr556 to block its nuclear translocation
@@ -91,9 +91,10 @@ note in the above the grounding is very preliminary and can be improved. Ungroun
 
 You will need to set both API keys using OAK (which is a dependency of this project)
 
-```
-poetry run runoak set-apikey openai <your openai api key>
-poetry run runoak set-apikey bioportal <your bioportal api key>
+```bash
+poetry install
+poetry run runoak set-apikey -e openai <your openai api key>
+poetry run runoak set-apikey -e bioportal <your bioportal api key>
 ```
 
 ## How to define your own extraction data model
@@ -185,7 +186,27 @@ Run the `make` command at the top level. This will compile the schema to pedanti
 e.g.
 
 ```
-ontogpt extract -t  mendelian_disease.MendelianDisease marfan-wikipedia.txt
+ontogpt extract -t mendelian_disease.MendelianDisease marfan-wikipedia.txt
+```
+
+## Use OntoGPT in a python application
+
+Install the `ontogpt` package from pip, then extract using the SPIRES engine and an existing template:
+
+```python
+import logging
+
+from ontogpt.engines.spires_engine import SPIRESEngine
+
+logger = logging.getLogger()
+logger.setLevel(level=logging.DEBUG)
+
+template = "treatment.DiseaseTreatmentSummary"
+text = "Clozapine is indicated for the treatment of severely ill patients with schizophrenia who fail to respond adequately to standard antipsychotic treatment"
+
+ke = SPIRESEngine(template)
+results = ke.extract_from_text(text)
+print(results)
 ```
 
 ## Web Application
@@ -197,7 +218,7 @@ poetry run web-ontogpt
 ```
 
 Note that the agent running uvicorn must have the API key set, so for obvious reasons
-don't host this publicly without authentication, unless you want your credits drained. 
+don't host this publicly without authentication, unless you want your credits drained.
 
 ## Features
 
@@ -233,7 +254,6 @@ Currently SPIRES must use text-davinci-003, which has a total 4k token limit (pr
 You can pass in a parameter to split the text into chunks, results will be recombined automatically,
 but more experiments need to be done to determined how reliable this is.
 
-```
 
 ## HALOE: Usage
 
@@ -248,8 +268,6 @@ This relies on an existing LLM, and LLMs can be fickle in their responses.
 ### Coupled to OpenAI
 
 You will need an openai account. In theory any LLM can be used but in practice the parser is tuned for OpenAI
-
-
 
 # Acknowledgements
 
