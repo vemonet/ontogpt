@@ -134,6 +134,9 @@ class KnowledgeEngine(ABC):
     last_prompt: str = None
     """Cache of last prompt used."""
 
+    grounding: bool = True
+    """Ground entities."""
+
     def __post_init__(self):
         if self.template:
             self.template_class = self._get_template_class(self.template)
@@ -403,47 +406,48 @@ class KnowledgeEngine(ABC):
         :param cls: schema class the ground object should instantiate
         :return:
         """
-        logger.info(f"GROUNDING {text} using {cls.name}")
-        text_lower = text.lower()
-        if self.dictionary and text_lower in self.dictionary:
-            obj_id = self.dictionary[text_lower]
-            logger.info(f"Found {text} in dictionary: {obj_id}")
-            yield obj_id
-        if self.dictionary:
-            for syn, obj_id in self.dictionary.items():
-                if syn in text_lower:
-                    if len(syn) / len(text_lower) > self.min_grounding_text_overlap:
-                        logger.info(f"Found {syn} < {text} in dictionary: {obj_id}")
-                        yield obj_id
-        if self.annotators and cls.name in self.annotators:
-            annotators = self.annotators[cls.name]
-        else:
-            if ANNOTATION_KEY_ANNOTATORS not in cls.annotations:
-                annotators = []
+        if self.grounding:
+            logger.info(f"GROUNDING {text} using {cls.name}")
+            text_lower = text.lower()
+            if self.dictionary and text_lower in self.dictionary:
+                obj_id = self.dictionary[text_lower]
+                logger.info(f"Found {text} in dictionary: {obj_id}")
+                yield obj_id
+            if self.dictionary:
+                for syn, obj_id in self.dictionary.items():
+                    if syn in text_lower:
+                        if len(syn) / len(text_lower) > self.min_grounding_text_overlap:
+                            logger.info(f"Found {syn} < {text} in dictionary: {obj_id}")
+                            yield obj_id
+            if self.annotators and cls.name in self.annotators:
+                annotators = self.annotators[cls.name]
             else:
-                annotators = cls.annotations[ANNOTATION_KEY_ANNOTATORS].value.split(", ")
-        logger.info(f" Annotators: {annotators}")
-        # prioritize whole matches by running these first
-        for matches_whole_text in [True, False]:
-            config = TextAnnotationConfiguration(matches_whole_text=matches_whole_text)
-            for annotator in annotators:
-                if isinstance(annotator, str):
-                    logger.info(f"Loading annotator {annotator}")
-                    annotator = get_implementation_from_shorthand(annotator)
-                if not matches_whole_text and not isinstance(
-                    annotator, OntoPortalImplementationBase
-                ):
-                    # TODO: allow more fine-grained control
-                    logger.info(
-                        f"Skipping {type(annotator)} as it does not support partial matches"
-                    )
-                    continue
-                try:
-                    results = annotator.annotate_text(text, config)
-                    for result in results:
-                        yield result.object_id
-                except Exception as e:
-                    logger.error(f"Error with {annotator} for {text}: {e}")
+                if ANNOTATION_KEY_ANNOTATORS not in cls.annotations:
+                    annotators = []
+                else:
+                    annotators = cls.annotations[ANNOTATION_KEY_ANNOTATORS].value.split(", ")
+            logger.info(f" Annotators: {annotators}")
+            # prioritize whole matches by running these first
+            for matches_whole_text in [True, False]:
+                config = TextAnnotationConfiguration(matches_whole_text=matches_whole_text)
+                for annotator in annotators:
+                    if isinstance(annotator, str):
+                        logger.info(f"Loading annotator {annotator}")
+                        annotator = get_implementation_from_shorthand(annotator)
+                    if not matches_whole_text and not isinstance(
+                        annotator, OntoPortalImplementationBase
+                    ):
+                        # TODO: allow more fine-grained control
+                        logger.info(
+                            f"Skipping {type(annotator)} as it does not support partial matches"
+                        )
+                        continue
+                    try:
+                        results = annotator.annotate_text(text, config)
+                        for result in results:
+                            yield result.object_id
+                    except Exception as e:
+                        logger.error(f"Error with {annotator} for {text}: {e}")
 
     # def ground_text_to_id(self, text: str, cls: ClassDefinition = None) -> str:
     #    raise NotImplementedError
